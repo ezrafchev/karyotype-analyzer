@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import os
 import json
 from datetime import datetime
-from PIL import Image
 
 # Define the samples directory
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'samples')
@@ -14,21 +13,19 @@ SAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'samples')
 def load_image(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Image file not found: {file_path}")
-    try:
-        image = Image.open(file_path)
-        image = np.array(image)
-        if len(image.shape) == 2:  # Grayscale image
-            image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-        elif len(image.shape) == 3 and image.shape[2] == 4:  # RGBA image
-            image = cv2.cvtColor(image, cv2.COLOR_RGBA2BGR)
-        elif len(image.shape) == 3 and image.shape[2] == 3:  # RGB image
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        return image
-    except Exception as e:
-        raise ValueError(f"Unable to read image: {file_path}. Error: {str(e)}")
+    image = cv2.imread(file_path)
+    if image is None:
+        # Try reading with skimage if cv2 fails
+        image = io.imread(file_path)
+        if image is None:
+            raise ValueError(f"Unable to read image: {file_path}")
+    return image
 
 def preprocess_image(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if len(image.shape) == 3:  # Color image
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:  # Already grayscale
+        gray = image
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     return blurred
 
