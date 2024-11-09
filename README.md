@@ -1,7 +1,7 @@
 
 # Karyotype Analyzer
 
-Este software automatiza a análise citogenética de cariótipos humanos, empregando inteligência artificial (IA) para identificar e classificar aberrações cromossômicas.
+Este software automatiza a análise citogenética de cariótipos humanos, empregando técnicas de processamento de imagem para identificar e classificar possíveis aberrações cromossômicas.
 
 ## Passo a Passo para Instalação e Uso
 
@@ -31,7 +31,14 @@ Este software automatiza a análise citogenética de cariótipos humanos, empreg
    pip install -r requirements.txt
    ```
 
-### 4. Executar o Programa
+### 4. Preparar Imagens de Amostra
+
+1. Dentro da pasta do projeto, crie uma pasta chamada "samples" se ela ainda não existir
+2. Coloque suas imagens de cariótipos na pasta "samples"
+   - Formatos suportados: .png, .jpg, .jpeg, .tiff, .bmp
+   - Nomeie as imagens de forma descritiva, por exemplo: "amostra001.jpg", "paciente_xyz.png"
+
+### 5. Executar o Programa
 
 1. Na mesma janela do Prompt de Comando ou Terminal, execute:
    ```
@@ -39,21 +46,31 @@ Este software automatiza a análise citogenética de cariótipos humanos, empreg
    ```
 2. A interface gráfica do programa será aberta
 
-### 5. Usar o Programa
+### 6. Usar o Programa
 
-1. Na interface, insira um ID para a amostra (por exemplo, "Amostra001")
-2. Clique no botão "Analyze Sample"
-3. Escolha um local e nome para salvar o arquivo de resultados JSON
-4. Aguarde a análise ser concluída
-5. Os resultados serão salvos no arquivo JSON escolhido
-6. Uma imagem dos cromossomos segmentados será salva no mesmo diretório
+1. Na interface, você verá uma lista das imagens de amostra disponíveis
+2. Clique no botão "Refresh Samples" se não vir suas imagens na lista
+3. Selecione a imagem que deseja analisar
+4. Clique no botão "Analyze Sample"
+5. Escolha um local e nome para salvar o arquivo de resultados JSON
+6. Aguarde a análise ser concluída
+7. Os resultados serão salvos no arquivo JSON escolhido
+8. Uma imagem dos cromossomos segmentados será salva no mesmo diretório
 
 ## Estrutura do Projeto
 
 - `main.py`: Arquivo principal para executar a aplicação
 - `karyotype_analyzer.py`: Contém a lógica de análise de cariótipos
-- `lab_integration.py`: Simula a integração com robôs laboratoriais
 - `gui.py`: Implementa a interface gráfica do usuário
+
+## Interpretação dos Resultados
+
+O arquivo JSON de resultados conterá:
+- Timestamp da análise
+- Lista de possíveis anomalias detectadas
+- Dados detalhados sobre cada cromossomo identificado
+
+A imagem segmentada mostrará os cromossomos identificados com cores diferentes para facilitar a visualização.
 
 ## Suporte
 
