@@ -1,6 +1,6 @@
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext
+from tkinter import filedialog, messagebox
 import os
 from karyotype_analyzer import main as analyze_karyotype, SAMPLES_DIR
 
@@ -21,9 +21,6 @@ class KaryotypeAnalyzerGUI:
         self.analyze_button = tk.Button(master, text="Analyze Sample", command=self.analyze_sample)
         self.analyze_button.pack()
 
-        self.output_text = scrolledtext.ScrolledText(master, height=10)
-        self.output_text.pack()
-
         self.quit_button = tk.Button(master, text="Quit", command=master.quit)
         self.quit_button.pack()
 
@@ -42,26 +39,17 @@ class KaryotypeAnalyzerGUI:
             return
 
         sample_file = self.sample_listbox.get(selection[0])
-        sample_id = sample_file  # Use the full filename as sample_id
+        sample_id = os.path.splitext(sample_file)[0]
 
         output_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if not output_path:
             return
 
         try:
-            self.output_text.delete(1.0, tk.END)  # Clear previous output
-            self.output_text.insert(tk.END, f"Analyzing {sample_file}...\n")
-            self.master.update()  # Update GUI to show new text immediately
-
             analyze_karyotype(sample_id, output_path)
-
-            self.output_text.insert(tk.END, f"Analysis complete. Results saved to {output_path}\n")
-            self.output_text.insert(tk.END, f"Segmented image saved to {output_path.replace('.json', '_segmented.png')}\n")
             messagebox.showinfo("Success", f"Analysis complete. Results saved to {output_path}")
         except Exception as e:
-            error_message = str(e)
-            self.output_text.insert(tk.END, f"Error: {error_message}\n")
-            messagebox.showerror("Error", error_message)
+            messagebox.showerror("Error", str(e))
 
 if __name__ == "__main__":
     root = tk.Tk()
