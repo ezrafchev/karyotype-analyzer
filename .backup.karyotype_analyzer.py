@@ -4,6 +4,7 @@ import numpy as np
 from skimage import io, filters, measure, segmentation
 import matplotlib.pyplot as plt
 import os
+from lab_integration import LabRobot, process_sample
 import json
 from datetime import datetime
 
@@ -15,17 +16,11 @@ def load_image(file_path):
         raise FileNotFoundError(f"Image file not found: {file_path}")
     image = cv2.imread(file_path)
     if image is None:
-        # Try reading with skimage if cv2 fails
-        image = io.imread(file_path)
-        if image is None:
-            raise ValueError(f"Unable to read image: {file_path}")
+        raise ValueError(f"Unable to read image: {file_path}")
     return image
 
 def preprocess_image(image):
-    if len(image.shape) == 3:  # Color image
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    else:  # Already grayscale
-        gray = image
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     return blurred
 
@@ -46,7 +41,7 @@ def analyze_karyotype(labeled_image):
             "perimeter": region.perimeter,
             "eccentricity": region.eccentricity,
             "solidity": region.solidity,
-            "centroid": region.centroid.tolist()  # Convert to list for JSON serialization
+            "centroid": region.centroid
         }
         chromosome_data.append(chromosome)
         
@@ -72,44 +67,33 @@ def save_results(abnormalities, chromosome_data, output_path):
 def main(sample_id, output_path):
     try:
         # Use the samples directory
-        image_path = os.path.join(SAMPLES_DIR, f"{sample_id}")
+        image_path = os.path.join(SAMPLES_DIR, f"{sample_id}.jpg")
         
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Sample image not found: {image_path}")
         
-        print(f"Loading image: {image_path}")
         image = load_image(image_path)
-        print(f"Image shape: {image.shape}")
-        
-        print("Preprocessing image...")
         preprocessed = preprocess_image(image)
-        
-        print("Segmenting chromosomes...")
         segmented = segment_chromosomes(preprocessed)
-        
-        print("Analyzing karyotype...")
         abnormalities, chromosome_data = analyze_karyotype(segmented)
         
         print("Detected abnormalities:")
         for abnormality in abnormalities:
             print(abnormality)
 
-        print(f"Saving results to {output_path}")
         save_results(abnormalities, chromosome_data, output_path)
 
         plt.imshow(segmented, cmap='nipy_spectral')
         plt.title("Segmented Chromosomes")
-        segmented_image_path = output_path.replace('.json', '_segmented.png')
-        plt.savefig(segmented_image_path)
+        plt.savefig(output_path.replace('.json', '_segmented.png'))
         plt.close()
 
         print(f"Results saved to {output_path}")
-        print(f"Segmented image saved to {segmented_image_path}")
+        print(f"Segmented image saved to {output_path.replace('.json', '_segmented.png')}")
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        raise
 
 if __name__ == "__main__":
-    sample_id = "sample001.jpg"
+    sample_id = "sample001"
     main(sample_id, f"karyotype_analysis_results_{sample_id}.json")
