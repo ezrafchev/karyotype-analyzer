@@ -8,9 +8,6 @@ from lab_integration import LabRobot, process_sample
 import json
 from datetime import datetime
 
-# Define the samples directory
-SAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'samples')
-
 def load_image(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Image file not found: {file_path}")
@@ -66,11 +63,11 @@ def save_results(abnormalities, chromosome_data, output_path):
 
 def main(sample_id, output_path):
     try:
-        # Use the samples directory
-        image_path = os.path.join(SAMPLES_DIR, f"{sample_id}.jpg")
+        robot = LabRobot()
+        image_path = process_sample(robot, sample_id)
         
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Sample image not found: {image_path}")
+        if not image_path:
+            raise ValueError(f"Failed to process sample {sample_id}")
         
         image = load_image(image_path)
         preprocessed = preprocess_image(image)
@@ -95,5 +92,5 @@ def main(sample_id, output_path):
         print(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    sample_id = "sample001"
+    sample_id = "12345"
     main(sample_id, f"karyotype_analysis_results_{sample_id}.json")
